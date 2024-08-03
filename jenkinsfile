@@ -1,7 +1,8 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = "rutujapawal/example-html-project"
+        DOCKER_IMAGE = 'rutujapawal/example-html-project'
+        DOCKER_BIN = '/usr/bin/docker' // Update this with the path to your docker binary
     }
     stages {
         stage('Checkout') {
@@ -12,16 +13,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build(DOCKER_IMAGE)
+                    def customImage = sh(script: "${env.DOCKER_BIN} build -t ${DOCKER_IMAGE} .", returnStdout: true).trim()
                 }
             }
         }
         stage('Run Docker Container') {
             steps {
                 script {
-                    docker.image(DOCKER_IMAGE).inside {
-                        sh 'docker run -d -p 8000:80 --name html-container ${DOCKER_IMAGE}'
-                    }
+                    sh "${env.DOCKER_BIN} run -d -p 8000:80 --name html-container ${DOCKER_IMAGE}"
                 }
             }
         }
