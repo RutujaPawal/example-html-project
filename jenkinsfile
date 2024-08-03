@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'rutujapawal/example-html-project'
+        DOCKER_IMAGE = 'rutujapawalhtml/example-html-project'
         DOCKER_BIN = '/usr/bin/docker' // Update this with the path to your docker binary
     }
     stages {
