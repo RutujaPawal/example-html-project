@@ -1,5 +1,8 @@
 pipeline {
-    agent any 
+    agent any
+    environment {
+        DOCKER_IMAGE = "rutujapawal/example-html-project"
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -9,13 +12,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def image = docker.build("rutujapawal/example-html-project")
+                    docker.build(DOCKER_IMAGE)
                 }
             }
         }
         stage('Run Docker Container') {
             steps {
-                sh 'docker run -d -p 80:80 --name html-container rutujapawal/example-html-project'
+                script {
+                    docker.image(DOCKER_IMAGE).inside {
+                        sh 'docker run -d -p 8000:80 --name html-container ${DOCKER_IMAGE}'
+                    }
+                }
             }
         }
     }
