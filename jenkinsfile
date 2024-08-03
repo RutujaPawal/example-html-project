@@ -3,12 +3,19 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/RutujaPawal/example-html-project.git'
+                git 'https://github.com/your-username/example-html-project.git'
             }
         }
-        stage('Deploy') {
+        stage('Build Docker Image') {
             steps {
-                sh 'sudo cp index.html /var/www/html/'  // Adjust the path as necessary for your server
+                script {
+                    def image = docker.build("your-username/example-html-project")
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            steps {
+                sh 'docker run -d -p 80:80 --name html-container your-username/example-html-project'
             }
         }
     }
