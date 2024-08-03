@@ -2,12 +2,12 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = 'rutujapawal/example-html-project'
-        DOCKER_BIN = '/usr/bin/docker'
+        DOCKER_BIN = '/usr/bin/docker' // Update this with the path to your docker binary
     }
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/RutujaPawal/example-html-project.git'
+                git 'git https://github.com/RutujaPawal/example-html-project.git'
             }
         }
         stage('Build Docker Image') {
@@ -20,9 +20,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    {
-                     sh "${env.DOCKER_BIN} run -d -p 8000:80 --name html-container ${DOCKER_IMAGE}"
-                    }
+                    sh "${env.DOCKER_BIN} run -d -p 8000:80 --name html-container ${DOCKER_IMAGE}"
                 }
             }
         }
