@@ -1,0 +1,15 @@
+pipeline {
+    agent any 
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/your-username/example-html-project.git'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'sudo cp index.html /var/www/html/'  // Adjust the path as necessary for your server
+            }
+        }
+    }
+}
