@@ -3,19 +3,19 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-username/example-html-project.git'
+                git 'https://github.com/RutujaPawal/example-html-project.git'
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
-                    def image = docker.build("your-username/example-html-project")
+                    def image = docker.build("rutujapawal/example-html-project")
                 }
             }
         }
         stage('Run Docker Container') {
             steps {
-                sh 'docker run -d -p 80:80 --name html-container your-username/example-html-project'
+                sh 'docker run -d -p 80:80 --name html-container rutujapawal/example-html-project'
             }
         }
     }
