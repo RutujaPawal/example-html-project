@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Download Files') {
+            steps {
+                // Bind the credentials for Nexus
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                    script {
+                        // Define variables for URLs and file names
+                        def tarFileUrl1 = 'https://example.com/file1.tar.gz'
+                        def tarFileUrl2 = 'https://example.com/file2.tar.gz'
+                        def nexusFileUrl = 'http://nexus.example.com/repository/path/to/your-file'
+                        def tarFileName1 = 'file1.tar.gz'
+                        def tarFileName2 = 'file2.tar.gz'
+                        def nexusFileName = 'your-file'
+
+                        // Download the first tar file
+                        sh """
+                        echo "Downloading ${tarFileUrl1}..."
+                        wget ${tarFileUrl1} -O ${tarFileName1}
+                        """
+
+                        // Download the second tar file
+                        sh """
+                        echo "Downloading ${tarFileUrl2}..."
+                        wget ${tarFileUrl2} -O ${tarFileName2}
+                        """
+
+                        // Download the file from Nexus with authentication
+                        sh """
+                        echo "Downloading ${nexusFileUrl} from Nexus..."
+                        wget --user=${NEXUS_USERNAME} --password=${NEXUS_PASSWORD} ${nexusFileUrl} -O ${nexusFileName}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Extract and Display Files') {
+            steps {
+                script {
+                    // Extract the tar files
+                    sh """
+                    echo "Extracting ${tarFileName1}..."
+                    tar -xzvf ${tarFileName1}
+                    
+                    echo "Extracting ${tarFileName2}..."
+                    tar -xzvf ${tarFileName2}
+                    """
+
+                    // List the files in the current directory after extraction
+                    def extractedFiles = sh(script: 'ls -l', returnStdout: true).trim()
+                    
+                    // Output the list of extracted files
+                    echo "Extracted files:\n${extractedFiles}"
+                }
+            }
+        }
+    }
+}
