@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Download Files') {
+            steps {
+                // Bind the credentials for Nexus
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                    script {
+                        // Define variables for Nexus URLs and GitHub file URL
+                        def nexusTarFileUrl1 = 'http://nexus.example.com/repository/path/to/tarfile1.tar.gz'
+                        def nexusTarFileUrl2 = 'http://nexus.example.com/repository/path/to/tarfile2.tar.gz'
+                        def githubFileUrl = 'https://raw.githubusercontent.com/username/repo/main/path/to/yourfile.txt'
+                        def nexusTarFileName1 = 'tarfile1.tar.gz'
+                        def nexusTarFileName2 = 'tarfile2.tar.gz'
+                        def githubFileName = 'yourfile.txt'
+
+                        // Download the first tar file from Nexus
+                        sh """
+                        echo "Downloading ${nexusTarFileUrl1} from Nexus..."
+                        wget --user=${NEXUS_USERNAME} --password=${NEXUS_PASSWORD} ${nexusTarFileUrl1} -O ${nexusTarFileName1}
+                        """
+
+                        // Download the second tar file from Nexus
+                        sh """
+                        echo "Downloading ${nexusTarFileUrl2} from Nexus..."
+                        wget --user=${NEXUS_USERNAME} --password=${NEXUS_PASSWORD} ${nexusTarFileUrl2} -O ${nexusTarFileName2}
+                        """
+
+                        // Download the file from GitHub
+                        sh """
+                        echo "Downloading ${githubFileUrl} from GitHub..."
+                        wget ${githubFileUrl} -O ${githubFileName}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Extract and Display Files') {
+            steps {
+                script {
+                    // Extract the tar files
+                    sh """
+                    echo "Extracting ${nexusTarFileName1}..."
+                    tar -xzvf ${nexusTarFileName1}
+                    
+                    echo "Extracting ${nexusTarFileName2}..."
+                    tar -xzvf ${nexusTarFileName2}
+                    """
+
+                    // List the files in the current directory after extraction
+                    def extractedFiles = sh(script: 'ls -l', returnStdout: true).trim()
+                    
+                    // Output the list of extracted files
+                    echo "Extracted files:\n${extractedFiles}"
+                }
+            }
+        }
+    }
+}
