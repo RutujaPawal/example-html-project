@@ -20,3 +20,21 @@ if (connection.responseCode == HttpURLConnection.HTTP_OK) {
 } else {
     println "Failed to download the file. HTTP response code: ${connection.responseCode}"
 }
+
+
+
+def githubUrl = "https://raw.githubusercontent.com/user/repository/main/path/to/urls_uat.yaml"
+def localFilePath = "urls_uat.yaml"
+
+// Command to download the file using curl
+def command = "curl -o ${localFilePath} ${githubUrl}"
+
+// Execute the command
+def process = command.execute()
+process.waitFor()
+
+if (process.exitValue() == 0) {
+    println "File downloaded successfully: ${localFilePath}"
+} else {
+    println "Failed to download the file: ${process.err.text}"
+}
