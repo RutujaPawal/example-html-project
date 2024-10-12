@@ -1,8 +1,8 @@
-def nexusUrl = "https://your-nexus-url/path/to/urls_uat.yaml"
+def githubUrl = "https://raw.githubusercontent.com/user/repository/branch/path/to/urls_uat.yaml"
 def localFilePath = "urls_uat.yaml"
 
 // Use URL class to download the file
-new URL(nexusUrl).withInputStream { inputStream ->
+new URL(githubUrl).withInputStream { inputStream ->
     new File(localFilePath).withOutputStream { outputStream ->
         outputStream << inputStream
     }
