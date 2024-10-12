@@ -1,0 +1,9 @@
+def githubUrl = new URL("https://raw.githubusercontent.com/user/repository/main/path/to/urls_uat.yaml")
+def localFile = new File("urls_uat.yaml")
+
+// Download the file content and save it
+localFile.withOutputStream { outputStream ->
+    outputStream << githubUrl.openStream()
+}
+
+println "File downloaded successfully!"
