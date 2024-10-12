@@ -1,10 +1,22 @@
+import java.net.HttpURLConnection
+import java.net.URL
+
+// GitHub raw URL of the file
 def githubUrl = "https://raw.githubusercontent.com/user/repository/main/path/to/urls_uat.yaml"
 def localFilePath = "urls_uat.yaml"
 
-// Read the file content from GitHub URL
-def fileContent = new URL(githubUrl).text
+// Create a URL object
+def url = new URL(githubUrl)
+HttpURLConnection connection = (HttpURLConnection) url.openConnection()
+connection.requestMethod = "GET"
 
-// Save the content to a local file
-new File(localFilePath).text = fileContent
-
-println "File downloaded successfully!"
+// Check if the response code is HTTP OK (200)
+if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+    // Read the input stream
+    def content = connection.inputStream.text
+    // Write the content to a local file
+    new File(localFilePath).text = content
+    println "File downloaded successfully!"
+} else {
+    println "Failed to download the file. HTTP response code: ${connection.responseCode}"
+}
