@@ -1,0 +1,11 @@
+def nexusUrl = "https://your-nexus-url/path/to/urls_uat.yaml"
+def localFilePath = "urls_uat.yaml"
+
+// Use URL class to download the file
+new URL(nexusUrl).withInputStream { inputStream ->
+    new File(localFilePath).withOutputStream { outputStream ->
+        outputStream << inputStream
+    }
+}
+
+println "File downloaded successfully: ${localFilePath}"
