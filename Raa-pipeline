@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(name: 'PARAM1', defaultValue: 'default_value_1', description: 'Parameter for Pipeline 1')
+        string(name: 'PARAM2', defaultValue: 'default_value_2', description: 'Parameter for Pipeline 2')
+    }
+    
+    stages {
+        stage('Trigger First Pipeline') {
+            steps {
+                script {
+                    echo "Triggering First Pipeline with PARAM1: ${params.PARAM1}"
+                    def firstBuild = build job: 'First-Pipeline', 
+                                          parameters: [
+                                              string(name: 'PARAM1', value: params.PARAM1)
+                                          ], 
+                                          wait: true // wait for the first pipeline to complete
+                    if (firstBuild.result != 'SUCCESS') {
+                        error "First pipeline failed. Stopping the process."
+                    }
+                }
+            }
+        }
+
+        stage('Trigger Second Pipeline') {
+            steps {
+                script {
+                    echo "Triggering Second Pipeline with PARAM2: ${params.PARAM2}"
+                    def secondBuild = build job: 'Second-Pipeline', 
+                                           parameters: [
+                                               string(name: 'PARAM2', value: params.PARAM2)
+                                           ], 
+                                           wait: true // wait for the second pipeline to complete
+                    if (secondBuild.result != 'SUCCESS') {
+                        error "Second pipeline failed."
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo "Pipelines process completed."
+        }
+    }
+}
