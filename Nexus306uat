@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    environment {
+        // Nexus credentials from Jenkins credentials store
+        NEXUS_USER = credentials('nexus-user')
+        NEXUS_PASS = credentials('nexus-password')
+    }
+
+    stages {
+        stage('Download and Upload File Dynamically') {
+            steps {
+                script {
+                    // Shell script to download and upload the file, dynamically changing 'dev' to 'uat'
+                    sh '''
+                        # Dynamic Source URL
+                        SRC_URL="https://Nexus306.systems.uk.hsbc.8081/Nexus/repository/maven-hsbc-internal-dev_dev_n3p/com/hsbc/gra/flow/ras-configuration-PROD/1.1.1/ras-configuration-PROD-1.1.1.tar.gz"
+                        
+                        # Dynamically create the destination URL by replacing 'dev' with 'uat'
+                        DEST_URL=$(echo "$SRC_URL" | sed 's/dev/uat/')
+
+                        # Extract the filename dynamically from the source URL
+                        FILENAME=$(basename "$SRC_URL")
+
+                        # Download the file from the source Nexus URL
+                        echo "Downloading $FILENAME from $SRC_URL ..."
+                        wget --user=$NEXUS_USER --password=$NEXUS_PASS "$SRC_URL"
+
+                        # Verify if the file was downloaded successfully
+                        if [ ! -f "$FILENAME" ]; then
+                            echo "Failed to download $FILENAME"
+                            exit 1
+                        fi
+                        
+                        echo "File $FILENAME downloaded successfully."
+
+                        # Upload the file to the dynamically generated target Nexus repository URL
+                        echo "Uploading $FILENAME to $DEST_URL ..."
+                        curl -u $NEXUS_USER:$NEXUS_PASS --upload-file "$FILENAME" "$DEST_URL"
+                        
+                        # Verify if the upload was successful
+                        if [ $? -ne 0 ]; then
+                            echo "Failed to upload $FILENAME to $DEST_URL"
+                            exit 1
+                        fi
+                        
+                        echo "File $FILENAME uploaded successfully to $DEST_URL."
+                    '''
+                }
+            }
+        }
+    }
+}
