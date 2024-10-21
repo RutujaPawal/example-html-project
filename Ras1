@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Extract URL Segment Dynamically with Groovy') {
+            steps {
+                script {
+                    // Define the dynamic URL
+                    def srcUrl = "https://Nexus306.systems.uk.hsbc.8081/Nexus/repository/maven-hsbc-internal-dev_dev_n3p/com/hsbc/gra/flow/ras-configuration-PROD/1.1.1/ras-configuration-PROD-1.1.1.tar.gz"
+                    
+                    // Split the URL by "/" to get parts of the URL path
+                    def urlParts = srcUrl.split("/")
+
+                    // Extract the second last and third last parts (ras-configuration-PROD and 1.1.1)
+                    def extractedPart = urlParts[-3] + "/" + urlParts[-2] + "/"
+
+                    // Output the extracted part
+                    echo "Extracted Part: ${extractedPart}"
+                }
+            }
+        }
+    }
+}
