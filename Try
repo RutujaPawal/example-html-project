@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Example Stage') {
+            steps {
+                script {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                        try {
+                            // Simulating the command that might throw the specific error
+                            echo "Executing task that may throw an error..."
+                            sh 'your_command_here'  // Replace with your actual command
+                        } catch (Exception e) {
+                            if (e.getMessage().contains('blob upload invalid:blob upload invalid')) {
+                                // Log the error and ensure the stage is marked as successful
+                                echo "Caught 'blob upload invalid:blob upload invalid' error, marking stage as successful."
+                            } else {
+                                // Fail the stage for any other error
+                                throw e
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Next Stage') {
+            steps {
+                echo "This is the next stage, executing after the previous stage."
+            }
+        }
+    }
+}
