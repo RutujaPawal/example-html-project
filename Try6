@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Trigger Downstream Pipeline with Parameters') {
+            steps {
+                script {
+                    timeout(time: 4, unit: 'HOURS') {  // Set timeout to 4 hours
+                        // Trigger the downstream pipeline with parameters
+                        def downstreamBuild = build job: 'downstream-pipeline-job-name', 
+                            parameters: [
+                                string(name: 'PARAM1', value: 'value1'),
+                                string(name: 'PARAM2', value: 'value2')
+                            ],
+                            propagate: false,    // Don't fail immediately on downstream failure
+                            wait: true           // Wait for the downstream pipeline to complete
+
+                        // Check if the downstream job failed
+                        if (downstreamBuild.result == 'FAILURE') {
+                            echo "Downstream pipeline failed. Checking logs..."
+
+                            // Attempt to get the logs of the downstream build
+                            def downstreamLog = downstreamBuild.rawBuild.getLog(1000) // Get last 1000 lines
+                            def logContent = downstreamLog.join('\n') // Combine into a single string
+
+                            // Check if the specific error exists in the logs
+                            if (logContent.contains('blob upload invalid:blob upload invalid')) {
+                                echo "Caught 'blob upload invalid:blob upload invalid' error, marking stage as successful."
+                                currentBuild.result = 'SUCCESS' // Explicitly set stage result to SUCCESS
+                            } else {
+                                error("Downstream pipeline failed with a different error.")
+                            }
+                        } else {
+                            // If downstream succeeded without the error
+                            error("Downstream pipeline succeeded, but we expected the 'blob upload invalid:blob upload invalid' error.")
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Next Stage') {
+            steps {
+                echo "Proceeding to the next stage..."
+            }
+        }
+    }
+}
