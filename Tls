@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  namespace: default  # Replace with your namespace if different
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx  # Specify your ingress class (e.g., "nginx")
+  tls:
+  - hosts:
+    - example.com  # Replace with your actual hostname
+    secretName: example-com-tls  # Name of the secret for TLS
+  rules:
+  - host: example.com  # Replace with your actual hostname
+    http:
+      paths:
+      - path: /getNextInputsForModel
+        pathType: Prefix
+        backend:
+          service:
+            name: service-next-inputs  # Name of the service handling this path
+            port:
+              number: 80  # Replace with the correct port for the service
+      - path: /nextInputs
+        pathType: Prefix
+        backend:
+          service:
+            name: service-next-inputs  # Same service or adjust as needed
+            port:
+              number: 80  # Replace with the correct port for the service
+      - path: /getStatus
+        pathType: Prefix
+        backend:
+          service:
+            name: service-status  # Name of the service handling this path
+            port:
+              number: 80  # Replace with the correct port for the service
